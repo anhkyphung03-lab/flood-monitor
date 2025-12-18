@@ -33,8 +33,9 @@ const waterChart = new Chart(ctx, {
 });
 
 // ===== EMAIL CONFIG =====
-const ALERT_EMAIL_LEVEL = 50; // % gửi email
-let emailSent = false;
+const ALERT_EMAIL_LEVEL = 50;          // %
+const EMAIL_INTERVAL = 10 * 60 * 1000; // 10 phút (ms)
+let lastEmailTime = 0;
 
 // ===== Realtime Firebase =====
 database.ref("/realtime").on("value", (snapshot) => {
@@ -54,29 +55,34 @@ database.ref("/realtime").on("value", (snapshot) => {
 
   waterChart.update();
 
-  // ===== SEND EMAIL =====
-  if (data.percent >= ALERT_EMAIL_LEVEL && !emailSent) {
+  // ===== SEND EMAIL mỗi 10 phút nếu vẫn ngập =====
+  const now = Date.now();
+
+  if (
+    data.percent >= ALERT_EMAIL_LEVEL &&
+    (now - lastEmailTime >= EMAIL_INTERVAL)
+  ) {
     sendAlertEmail(data.percent);
-    emailSent = true;
+    lastEmailTime = now;
   }
 
   // reset khi nước rút
-  if (data.percent < 50) {
-    emailSent = false;
+  if (data.percent < ALERT_EMAIL_LEVEL) {
+    lastEmailTime = 0;
   }
 });
 
 // ===== SEND EMAIL FUNCTION =====
 function sendAlertEmail(percent) {
   emailjs.send(
-    "service_jxrivlm",          // ⚠️ ĐIỀN SERVICE ID CỦA EM
-    "template_cc3fkrq",       // TEMPLATE ID
+    "service_jxrivlm",     // SERVICE ID
+    "template_cc3fkrq",    // TEMPLATE ID
     {
       percent: percent,
       time: new Date().toLocaleString()
     }
   ).then(() => {
-    console.log("📧 Email đã gửi thành công");
+    console.log("📧 Email đã gửi");
   }).catch((err) => {
     console.error("❌ Lỗi gửi email:", err);
   });
