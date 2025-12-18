@@ -2,16 +2,23 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Giám sát ngập hầm xe</title>
+  <title>Hệ thống giám sát ngập</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <h1>🌊 Giám sát mực nước hầm xe</h1>
 
-  <div class="box">
-    <p>Mực nước: <span id="water">--</span> cm</p>
-    <p>Ngập: <span id="percent">--</span> %</p>
-  </div>
+<body>
+  <h2>GIÁM SÁT MỰC NƯỚC HẦM XE</h2>
+
+  <p>
+    Mực nước hiện tại:
+    <span id="waterValue">--</span> %
+  </p>
+
+  <canvas id="waterChart"></canvas>
 
   <script src="script.js"></script>
 </body>
