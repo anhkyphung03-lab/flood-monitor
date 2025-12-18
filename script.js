@@ -33,7 +33,7 @@ const waterChart = new Chart(ctx, {
 });
 
 // ====== Realtime listener ======
-database.ref("/").on("value", (snapshot) => {
+database.ref("/data").on("value", (snapshot) => {
   const data = snapshot.val();
   if (!data || data.percent === undefined) return;
 
