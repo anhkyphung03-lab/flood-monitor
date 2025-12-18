@@ -1,18 +1,26 @@
 const FIREBASE_URL =
   "https://flood-monitor-iot-d5766-default-rtdb.asia-southeast1.firebasedatabase.app/data.json";
 
-setInterval(async () => {
-  try {
-    const res = await fetch(FIREBASE_URL);
-    const data = await res.json();
+function updateChart() {
+  fetch(FIREBASE_URL)
+    .then(res => res.json())
+    .then(data => {
+      if (!data || data.percent === undefined) return;
 
-    document.getElementById("water").innerText =
-      data.water_cm.toFixed(1);
+      const now = new Date().toLocaleTimeString();
 
-    document.getElementById("percent").innerText =
-      data.percent.toFixed(1);
+      waterChart.data.labels.push(now);
+      waterChart.data.datasets[0].data.push(data.percent);
 
-  } catch (e) {
-    console.error("Lỗi lấy dữ liệu", e);
-  }
-}, 1000);
+      // Giữ tối đa 20 điểm
+      if (waterChart.data.labels.length > 20) {
+        waterChart.data.labels.shift();
+        waterChart.data.datasets[0].data.shift();
+      }
+
+      waterChart.update();
+    });
+}
+
+// cập nhật mỗi 1 giây
+setInterval(updateChart, 1000);
