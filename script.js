@@ -32,6 +32,10 @@ const waterChart = new Chart(ctx, {
   }
 });
 
+// ===== EMAIL CONFIG =====
+const ALERT_EMAIL_LEVEL = 50; // % gửi email
+let emailSent = false;
+
 // ===== Realtime Firebase =====
 database.ref("/realtime").on("value", (snapshot) => {
   const data = snapshot.val();
@@ -39,6 +43,7 @@ database.ref("/realtime").on("value", (snapshot) => {
 
   const time = new Date().toLocaleTimeString();
 
+  // ===== Update chart =====
   waterChart.data.labels.push(time);
   waterChart.data.datasets[0].data.push(data.percent);
 
@@ -48,4 +53,31 @@ database.ref("/realtime").on("value", (snapshot) => {
   }
 
   waterChart.update();
+
+  // ===== SEND EMAIL =====
+  if (data.percent >= ALERT_EMAIL_LEVEL && !emailSent) {
+    sendAlertEmail(data.percent);
+    emailSent = true;
+  }
+
+  // reset khi nước rút
+  if (data.percent < 50) {
+    emailSent = false;
+  }
 });
+
+// ===== SEND EMAIL FUNCTION =====
+function sendAlertEmail(percent) {
+  emailjs.send(
+    "service_jxrivlm",          // ⚠️ ĐIỀN SERVICE ID CỦA EM
+    "template_cc3fkrq",       // TEMPLATE ID
+    {
+      percent: percent,
+      time: new Date().toLocaleString()
+    }
+  ).then(() => {
+    console.log("📧 Email đã gửi thành công");
+  }).catch((err) => {
+    console.error("❌ Lỗi gửi email:", err);
+  });
+}

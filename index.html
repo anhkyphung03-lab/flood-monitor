@@ -10,6 +10,14 @@
   <!-- Firebase SDK v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <!-- ✅ EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("YsEIpNAzEHIYJntWI"); // PUBLIC KEY
+    })();
+  </script>
 </head>
 
 <body>
@@ -17,6 +25,7 @@
 
   <canvas id="waterChart" width="400" height="200"></canvas>
 
+  <!-- Script chính -->
   <script src="script.js"></script>
 </body>
 </html>
