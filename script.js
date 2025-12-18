@@ -1,4 +1,4 @@
-// ====== Firebase config ======
+// ===== Firebase config =====
 const firebaseConfig = {
   databaseURL:
     "https://flood-monitor-iot-d5766-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -7,7 +7,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// ====== Chart.js ======
+// ===== Chart.js =====
 const ctx = document.getElementById("waterChart").getContext("2d");
 
 const waterChart = new Chart(ctx, {
@@ -32,8 +32,8 @@ const waterChart = new Chart(ctx, {
   }
 });
 
-// ====== Realtime listener ======
-database.ref("/data").on("value", (snapshot) => {
+// ===== Realtime Firebase =====
+database.ref("/realtime").on("value", (snapshot) => {
   const data = snapshot.val();
   if (!data || data.percent === undefined) return;
 
