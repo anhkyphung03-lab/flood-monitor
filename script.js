@@ -24,18 +24,17 @@ const waterChart = new Chart(ctx, {
   },
   options: {
     scales: {
-      y: {
-        min: 0,
-        max: 100
-      }
+      y: { min: 0, max: 100 }
     }
   }
 });
 
 // ===== EMAIL CONFIG =====
-const ALERT_EMAIL_LEVEL = 50;          // %
-const EMAIL_INTERVAL = 10 * 60 * 1000; // 10 phút (ms)
-let lastEmailTime = 0;
+const ALERT_EMAIL_LEVEL = 50;
+const EMAIL_INTERVAL = 10 * 60 * 1000; // 10 phút
+
+// lấy thời điểm gửi email lần cuối từ localStorage
+let lastEmailTime = Number(localStorage.getItem("lastEmailTime")) || 0;
 
 // ===== Realtime Firebase =====
 database.ref("/realtime").on("value", (snapshot) => {
@@ -64,19 +63,21 @@ database.ref("/realtime").on("value", (snapshot) => {
   ) {
     sendAlertEmail(data.percent);
     lastEmailTime = now;
+    localStorage.setItem("lastEmailTime", now);
   }
 
   // reset khi nước rút
   if (data.percent < ALERT_EMAIL_LEVEL) {
     lastEmailTime = 0;
+    localStorage.removeItem("lastEmailTime");
   }
 });
 
 // ===== SEND EMAIL FUNCTION =====
 function sendAlertEmail(percent) {
   emailjs.send(
-    "service_jxrivlm",     // SERVICE ID
-    "template_cc3fkrq",    // TEMPLATE ID
+    "service_jxrivlm",
+    "template_cc3fkrq",
     {
       percent: percent,
       time: new Date().toLocaleString()
