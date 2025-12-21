@@ -17,74 +17,53 @@ const waterChart = new Chart(ctx, {
     datasets: [{
       label: "Mực nước (%)",
       data: [],
-      borderColor: "red",
-      fill: false,
+      borderColor: "blue",
+      backgroundColor: "rgba(0, 0, 255, 0.1)",
+      fill: true,
       tension: 0.3
     }]
   },
   options: {
+    responsive: true,
     scales: {
-      y: { min: 0, max: 100 }
+      y: {
+        min: 0,
+        max: 100,
+        title: {
+          display: true,
+          text: "%"
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Thời gian"
+        }
+      }
     }
   }
 });
 
-// ===== EMAIL CONFIG =====
-const ALERT_EMAIL_LEVEL = 50;
-const EMAIL_INTERVAL = 10 * 60 * 1000; // 10 phút
+// ===== DOM =====
+const percentText = document.getElementById("percent");
 
-// lấy thời điểm gửi email lần cuối từ localStorage
-let lastEmailTime = Number(localStorage.getItem("lastEmailTime")) || 0;
-
-// ===== Realtime Firebase =====
+// ===== Realtime Firebase listener =====
 database.ref("/realtime").on("value", (snapshot) => {
   const data = snapshot.val();
   if (!data || data.percent === undefined) return;
 
   const time = new Date().toLocaleTimeString();
 
-  // ===== Update chart =====
+  percentText.innerText = data.percent.toFixed(1);
+
   waterChart.data.labels.push(time);
   waterChart.data.datasets[0].data.push(data.percent);
 
-  if (waterChart.data.labels.length > 20) {
+  // giữ tối đa 30 điểm
+  if (waterChart.data.labels.length > 30) {
     waterChart.data.labels.shift();
     waterChart.data.datasets[0].data.shift();
   }
 
   waterChart.update();
-
-  // ===== SEND EMAIL mỗi 10 phút nếu vẫn ngập =====
-  const now = Date.now();
-
-  if (
-    data.percent >= ALERT_EMAIL_LEVEL &&
-    (now - lastEmailTime >= EMAIL_INTERVAL)
-  ) {
-    sendAlertEmail(data.percent);
-    lastEmailTime = now;
-    localStorage.setItem("lastEmailTime", now);
-  }
-
-  // reset khi nước rút
-  if (data.percent < ALERT_EMAIL_LEVEL) {
-    lastEmailTime = 0;
-    localStorage.removeItem("lastEmailTime");
-  }
 });
-
-// ===== SEND EMAIL FUNCTION =====
-function sendAlertEmail(percent) {
-  emailjs.send(
-    "service_jxrivlm",
-    "template_cc3fkrq",
-    {
-      percent: percent,
-      time: new Date().toLocaleString()
-    }
-  ).then(() => {
-    console.log("📧 Email đã gửi");
-  }).catch((err) => {
-    console.error("❌ Lỗi gửi email:", err);
-  });
-}
