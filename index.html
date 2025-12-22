@@ -11,19 +11,51 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- ✅ EmailJS -->
+  <!-- EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
     (function(){
-      emailjs.init("YsEIpNAzEHIYJntWI"); // PUBLIC KEY
+      emailjs.init("YsEIpNAzEHIYJntWI");
     })();
   </script>
+
+  <!-- ===== STYLE GIAO DIỆN ===== -->
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f4f6f8;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .chart-wrapper {
+      width: 75vw;          /* ~3/4 màn hình */
+      max-width: 1100px;    /* không quá to trên màn hình lớn */
+      height: 60vh;         /* chiều cao hợp lý */
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
 </head>
 
 <body>
   <h2>Mực nước hầm (%)</h2>
 
-  <canvas id="waterChart" width="400" height="200"></canvas>
+  <div class="chart-wrapper">
+    <canvas id="waterChart"></canvas>
+  </div>
 
   <!-- Script chính -->
   <script src="script.js"></script>
