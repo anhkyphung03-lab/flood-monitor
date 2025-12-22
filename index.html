@@ -11,32 +11,21 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 30px;
-    }
-    canvas {
-      max-width: 800px;
-      margin: auto;
-    }
-    .value {
-      font-size: 20px;
-      margin: 10px;
-    }
-  </style>
+  <!-- ✅ EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("YsEIpNAzEHIYJntWI"); // PUBLIC KEY
+    })();
+  </script>
 </head>
 
 <body>
-  <h2>Giám sát mực nước hầm xe (IoT)</h2>
+  <h2>Mực nước hầm (%)</h2>
 
-  <div class="value">
-    Mực nước hiện tại: <b><span id="percent">--</span> %</b>
-  </div>
+  <canvas id="waterChart" width="400" height="200"></canvas>
 
-  <canvas id="waterChart"></canvas>
-
+  <!-- Script chính -->
   <script src="script.js"></script>
 </body>
 </html>

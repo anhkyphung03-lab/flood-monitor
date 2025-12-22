@@ -17,53 +17,76 @@ const waterChart = new Chart(ctx, {
     datasets: [{
       label: "Mực nước (%)",
       data: [],
-      borderColor: "blue",
-      backgroundColor: "rgba(0, 0, 255, 0.1)",
-      fill: true,
-      tension: 0.3
+      borderColor: "green",
+      fill: false,
+      tension: 0.3,
+      borderWidth: 2
     }]
   },
   options: {
-    responsive: true,
     scales: {
-      y: {
-        min: 0,
-        max: 100,
-        title: {
-          display: true,
-          text: "%"
-        }
-      },
-      x: {
-        title: {
-          display: true,
-          text: "Thời gian"
-        }
-      }
+      y: { min: 0, max: 100 }
     }
   }
 });
 
-// ===== DOM =====
-const percentText = document.getElementById("percent");
+// ===== NGƯỠNG CẢNH BÁO =====
+const ALERT_LEVEL = 50;
 
-// ===== Realtime Firebase listener =====
+// ===== CỜ CHỐNG SPAM EMAIL =====
+// true  = đã gửi email
+// false = chưa gửi
+let emailSent = localStorage.getItem("emailSent") === "true";
+
+// ===== Realtime Firebase =====
 database.ref("/realtime").on("value", (snapshot) => {
   const data = snapshot.val();
   if (!data || data.percent === undefined) return;
 
   const time = new Date().toLocaleTimeString();
 
-  percentText.innerText = data.percent.toFixed(1);
-
+  // ===== Update chart =====
   waterChart.data.labels.push(time);
   waterChart.data.datasets[0].data.push(data.percent);
 
-  // giữ tối đa 30 điểm
-  if (waterChart.data.labels.length > 30) {
+  if (waterChart.data.labels.length > 20) {
     waterChart.data.labels.shift();
     waterChart.data.datasets[0].data.shift();
   }
 
+  // ===== ĐỔI MÀU ĐƯỜNG =====
+  if (data.percent < ALERT_LEVEL) {
+    waterChart.data.datasets[0].borderColor = "green";
+
+    // reset khi nước rút
+    emailSent = false;
+    localStorage.removeItem("emailSent");
+  } else {
+    waterChart.data.datasets[0].borderColor = "red";
+
+    // ===== GỬI EMAIL CHỈ 1 LẦN =====
+    if (!emailSent) {
+      sendAlertEmail(data.percent);
+      emailSent = true;
+      localStorage.setItem("emailSent", "true");
+    }
+  }
+
   waterChart.update();
 });
+
+// ===== SEND EMAIL FUNCTION =====
+function sendAlertEmail(percent) {
+  emailjs.send(
+    "service_jxrivlm",     // SERVICE ID
+    "template_cc3fkrq",    // TEMPLATE ID
+    {
+      percent: percent,
+      time: new Date().toLocaleString()
+    }
+  ).then(() => {
+    console.log("📧 Email cảnh báo đã gửi (1 lần)");
+  }).catch((err) => {
+    console.error("❌ Lỗi gửi email:", err);
+  });
+}
